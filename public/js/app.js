@@ -29,16 +29,17 @@ initButtonEvents();
 function initButtonEvents() {
 
   $('#exportModal').on('show.bs.modal', function (event) {
-    var modal = $(this)
+    var modal = $(this);
+    // TODO
   });
 
-  $('#statsModal').on('show.bs.modal', function (event) {
-    loadStatsTable()
-  });
-
-  $('#statsModal').on('hidden.bs.modal', function (e) {
+  $('#statsModal').on('hidden.bs.modal', function (event) {
     $('#statsContent ul').html('');
-  })
+  });
+
+  $('#addModal').on('hidden.bs.modal', function (event) {
+    $('#addContent').val('');
+  });
 
   $('#analytics').click(function(event) {
     socket.emit('stats', {});
@@ -51,6 +52,7 @@ function exportSelection() {
 
 function onCollectionSelect(event) {
   var collectionName = event.target.parentElement.id;
+  collectionName = collectionName.replace(/\-/g, '.');
   socket.emit('entries', {collection:collectionName});
   $('#collectionTitle').html('\'' + collectionName + '\'' + ' Collection');
   currCollection = collectionName;
@@ -65,8 +67,10 @@ function generateStatsContent(stats) {
       i++;
     } 
   }
+  // Ignore the last two stats
   data.pop();
   data.pop();
+
   loadStatsTable(data);
 }
 
@@ -78,7 +82,6 @@ function generateDatabaseList(dbs) {
     dbItem += '<h4>' + dbs[i].name + ' database</h4>';
     dbItem += '<span class="text-muted">Size: ' + dbs[i].sizeOnDisk+ '</span></div></a>';
     $('#dbList').append(dbItem);
-    console.log('appending');
 
     // Add click event to change DB
     $('#' + dbs[i].name).click(function(event) {
@@ -100,23 +103,33 @@ function generateCollectionList(collections) {
 
   $('#collections').html('<li class="active"><a href="">Collections</a></li>');
 
+  // In case we have no collections in the DB
   if(collections.length == 0) {
     listItem = '<li><a href="#">No Collections Available</a></li>';
     $('#collections').append(listItem);
   }
 
-  // Start at 1 to ignore system.indexes
   for(var i = 0; i < collections.length; i++) {
+
+    // Replace '.' with '-' since jQuery doesn't play nice with periods
+    var collectionID = collections[i].replace(/\./g, '-');
+
+    // Build our list item
     listItem = '<li id="';
-    listItem += collections[i];
+    listItem += collectionID;
     listItem += '"><a href="#">';
     listItem += collections[i];
     listItem += '</a></li>';
+
+    // Append it to the collection list on the side nav
     $('#collections').append(listItem);
-    $('#' + collections[i]).click(function(event) {
+
+    // Make it clickable
+    $('#' + collectionID).click(function(event) {
       onCollectionSelect(event);
     });
 
+    // Add our collection as a dropdown option for export
     dropdownItem = '<li role="presentation"><a role="menuitem" tabindex="-1" href="#">';
     dropdownItem += collections[i];
     dropdownItem += '</a></li>';
@@ -125,33 +138,38 @@ function generateCollectionList(collections) {
 }
 
 function generateEntryTable(entries) {
-  console.log(entries);
   var data = [];
+
   for(var i = 0; i < entries.length; i++) {
     var entry = entries[i];
     var slimEntry = {};
 
-    for (var key in entry) {      
+    for (var key in entry) {
+      // Only get the properties of the entry itself      
       if (entry.hasOwnProperty(key)) {
         slimEntry[key] = entry[key];
       } 
     }
+
+    // Move the _id property to the upper level of the entry's JSON
     delete slimEntry['_id'];
-    var json = JSON.stringify(slimEntry);
-    data[i] = {id:entry['_id'], json: json};
+    data[i] = {id:entry['_id'], json: JSON.stringify(slimEntry)};
   }
+
+  // Populate and show the table
   loadBootstrapTable(data);
   $('#entryTableDiv').show();
 }
 
 function loadStatsTable(data) {
+
+  // If the table has already been loaded once, simply reload the new data
   if($('#stats-table-javascript').html() != '') {
-    console.log('Updating table');
     $('#stats-table-javascript').bootstrapTable('load', data);
     return;
   }
 
-  console.log("Loading stats table");
+  // Build the stats table
   $('#stats-table-javascript').bootstrapTable({
     data: data,
     cache: false,
@@ -173,15 +191,17 @@ function loadStatsTable(data) {
   });
 }
 
+// This is the table for displaying MongoDB collection entries
 function loadBootstrapTable(data) {
-  console.log(data);
+
+  // If the table has already been loaded once, simply reload the new data
   if($('#table-javascript').html() != '') {
     console.log('Updating table');
     $('#table-javascript').bootstrapTable('load', data);
     return;
   }
 
-  console.log("Loading bootstrap table");
+  // Build the collection entries table
   $('#table-javascript').bootstrapTable({
     data: data,
     cache: false,
@@ -193,6 +213,8 @@ function loadBootstrapTable(data) {
     search: true,
     showColumns: true,
     showRefresh: true,
+    toolbar: '#toolbar',
+    toolbarAlign: 'right',
     minimumCountColumns: 2,
     clickToSelect: true,
     columns: [{
@@ -237,9 +259,12 @@ function operateFormatter(value, row, index) {
 window.operateEvents = {
 
   'click .edit': function (e, value, row, index) {
-    console.log(value, row, index);
+
     var buttons = '<button class="btn btn-default btn-sm" id="save">Save</button><button class="btn btn-default btn-sm" id="cancel">Cancel</button>';
     var originalJSON = row.json;
+
+    $('#table-javascript').bootstrapTable('hideColumn', 'operate');
+
     $('#table-javascript').bootstrapTable('updateRow', {
       index: index,
       row: {
@@ -268,6 +293,7 @@ window.operateEvents = {
           }
         });
       }
+      $('#table-javascript').bootstrapTable('showColumn', 'operate');
     });
 
      $('#cancel').click(function(event) {
@@ -277,6 +303,7 @@ window.operateEvents = {
             json: originalJSON
           }
         });
+        $('#table-javascript').bootstrapTable('showColumn', 'operate');
      });
   },
   'click .remove': function (e, value, row, index) {
@@ -289,3 +316,15 @@ window.operateEvents = {
     }
   }
 };
+
+$('#saveNew').click(function(event) {
+  var newJSON = $('#addContent').val();
+  try {
+    var obj = JSON.parse(newJSON);
+    $('#addContent').val('');
+    socket.emit('add', {collection: currCollection, entry:obj});
+  }
+  catch(err) {
+    alert('Not valid JSON');
+  }
+});

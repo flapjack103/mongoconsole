@@ -1,13 +1,27 @@
 {
   "name": "mongoConsole",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.0.0",
+  "description": "A webserver for viewing/editing MongoDB data",
+  "main": "app.js",
   "scripts": {
-    "start": "node app"
+    "start": "node app",
+    "test": "make test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:flapjack103/MongoConsole.git"
+  },
+  "keywords": [
+    "mongodb"
+  ],
+  "author": "Alexandra Grant <alexandrag103@gmail.com>",
   "dependencies": {
     "express": "3.1.0",
     "socket.io": "*",
-    "mongojs": "*"
+    "mongojs": "*",
+    "mongoose": "*"
+  },
+  "devDependencies": {
+    "mocha": "^2.0.1"
   }
 }

@@ -113,7 +113,7 @@ body {
 }
 
 #dbList img {
-  height:200px !important;
+  height:120px !important;
 }
 
 .fixed-table-container {
@@ -122,4 +122,14 @@ body {
 
 .active img {
   background: #dbdbdb;
+}
+
+.navbar-brand img {
+  height: 25px;
+  display: inline;
+}
+
+#addContent {
+  width: 100%;
+  height: 200px
 }
