@@ -161,6 +161,11 @@ function generateEntryTable(entries) {
   $('#entryTableDiv').show();
 }
 
+function loadJSONTree(data) {
+  //buildTree(data, "#tree-container");
+
+}
+
 function loadStatsTable(data) {
 
   // If the table has already been loaded once, simply reload the new data
@@ -247,6 +252,9 @@ function loadBootstrapTable(data) {
 
 function operateFormatter(value, row, index) {
   return [
+  '<a class="tree ml10" href="javascript:void(0)" title="View JSON Tree">',
+  '<i class="glyphicon glyphicon-tree-conifer"></i>',
+  '</a>',
   '<a class="edit ml10" href="javascript:void(0)" title="Edit">',
   '<i class="glyphicon glyphicon-edit"></i>',
   '</a>',
@@ -257,6 +265,9 @@ function operateFormatter(value, row, index) {
 }
 
 window.operateEvents = {
+  'click .tree': function (e, value, row, index) {
+    loadJSONTree(row.json);
+  },
 
   'click .edit': function (e, value, row, index) {
 
