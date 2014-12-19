@@ -1,8 +1,8 @@
 var socket = io();
 var currCollection = '';
 
-socket.emit('collections', {name:'all'});
 socket.emit('databases', {});
+socket.emit('collections', {});
 
 socket.on('collections', function(msg) {
   console.log('Got collection list: ', msg);
@@ -208,7 +208,7 @@ function loadBootstrapTable(data) {
     height: 500,
     striped: true,
     pagination: true,
-    pageSize: 3,
+    pageSize: 5,
     pageList: [10, 25, 50, 100, 200],
     search: true,
     showColumns: true,
@@ -247,6 +247,9 @@ function loadBootstrapTable(data) {
 
 function operateFormatter(value, row, index) {
   return [
+  '<a class="tree ml10" href="#tree-container" title="View JSON Tree">',
+  '<i class="glyphicon glyphicon-tree-conifer"></i>',
+  '</a>',
   '<a class="edit ml10" href="javascript:void(0)" title="Edit">',
   '<i class="glyphicon glyphicon-edit"></i>',
   '</a>',
@@ -257,6 +260,20 @@ function operateFormatter(value, row, index) {
 }
 
 window.operateEvents = {
+  'click .tree': function (e, value, row, index) {    
+      $('#tree-container').html('');
+      buildTree(row.json);//, "#tree-container");
+     $('#tree-container').prepend('<button class="btn btn-default btn-sm" id="expandAll">Expand All</button><button class="btn btn-default btn-sm" id="hideTree">Hide Tree</button>');
+
+     $('#expandAll').click(function(event) {
+
+     });
+
+     $('#hideTree').click(function(event) {
+      $('#tree-container').html('');
+      $("html, body").animate({ scrollTop: 0 }, "slow");
+     });
+  },
 
   'click .edit': function (e, value, row, index) {
 

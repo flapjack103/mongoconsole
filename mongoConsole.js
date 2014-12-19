@@ -113,7 +113,7 @@ function getEntries(msg) {
   });
 }
 
-function getCollections() {
+function getCollections() {  
   mongo.getCollectionNames(function(err, results) {
     if(!err) {
       var collections = [];
@@ -123,7 +123,7 @@ function getCollections() {
       io.emit('collections', collections);
     }
     else {
-      console.log('MONGO COLLECTION NAME ERR: ', err);
+      console.log('MONGO GET COLLECTIONS ERR: ', err);
     }
   });
 }
@@ -131,7 +131,6 @@ function getCollections() {
 function getDatabases(msg) {
   mongo.getDatabaseNames(function(err, results) {
     if(!err) {
-      console.log('DBs: %j', results);
       io.emit('databases', results);
     }
     else {

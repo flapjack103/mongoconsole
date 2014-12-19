@@ -38,9 +38,6 @@
             <li><a href="settings">Settings</a></li>
             <li><a href="help">Help</a></li>
           </ul>
-          <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Search...">
-          </form>
         </div>
       </div>
     </nav>
@@ -62,12 +59,14 @@
 
           <div id="dbList" class="row placeholders">     
           </div>
-
+          
           <div id="entryTableDiv">
             <h2 id="collectionTitle" class="sub-header">Section title</h2>
               <table id="table-javascript"></table>
           </div>
-        </div>
+          <div id="tree-container"></div>
+        </div> 
+
       </div>
     </div>
 
@@ -157,6 +156,8 @@
     <script src="libs/docs.min.js"></script>
     <script src="libs/bootstrap-table.js"></script>    
     <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
+    <script src="libs/d3.min.js"></script>
+    <script src="js/buildJSONTree.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>
