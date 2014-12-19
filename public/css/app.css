@@ -135,19 +135,27 @@ body {
 }
 
 /* JSON Tree Styling */
-.node circle {
+
+.node {
   cursor: pointer;
+}
+
+.node circle {
   fill: #fff;
   stroke: steelblue;
   stroke-width: 1.5px;
 }
 
 .node text {
-  font-size: 11px;
+  font: 10px sans-serif;
 }
 
-path.link {
+.link {
   fill: none;
   stroke: #ccc;
   stroke-width: 1.5px;
+}
+
+#tree-container {
+  margin-bottom: 100px;
 }
