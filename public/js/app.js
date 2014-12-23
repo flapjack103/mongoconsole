@@ -29,8 +29,25 @@ initButtonEvents();
 function initButtonEvents() {
 
   $('#exportModal').on('show.bs.modal', function (event) {
+    var rows = $('#table-javascript').bootstrapTable('getSelections');
+    console.log('selection:', rows);
     var modal = $(this);
-    // TODO
+    if(rows.length > 0 && !rows.selector) {
+      modal.find('.currentSelectionContent').html('<h4>Number of Selected Rows</h4> ' + rows.length);
+    }
+    else {
+      modal.find('.currentSelectionContent').html('No Rows Selected');
+    }
+
+    $('#selection a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    });
+    $('#collection a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    });
+
   });
 
   $('#statsModal').on('hidden.bs.modal', function (event) {
@@ -47,6 +64,33 @@ function initButtonEvents() {
 }
 
 function exportSelection() {
+  // Determine if we're exporting from selection or collection
+  if($('#selectionTab').hasClass('active')){
+    var rows = $('#table-javascript').bootstrapTable('getSelections');
+    if(rows.length == 0 || rows.selector) {
+      alert('Nothing to export');
+      return;
+    }
+  }
+  else{
+    //TODO get all data in collection
+  }
+
+  var filename = $('#exportFileName').val() + '.json';
+  if(filename == '.json') {
+    filename = 'mongoData.json';
+  }
+
+  // http://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server
+  var pom = document.createElement('a');
+  pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(rows)));
+  pom.setAttribute('download', filename);
+  pom.click();
+
+  // Clean up
+  $('#exportModal').modal('hide');
+  $('#exportFileName').val('');
+  $('#table-javascript').bootstrapTable('uncheckAll');
 
 }
 
@@ -130,10 +174,10 @@ function generateCollectionList(collections) {
     });
 
     // Add our collection as a dropdown option for export
-    dropdownItem = '<li role="presentation"><a role="menuitem" tabindex="-1" href="#">';
+    dropdownItem = '<option value="' + collections[i] + '"">';
     dropdownItem += collections[i];
-    dropdownItem += '</a></li>';
-    $('#exportContent ul').append(dropdownItem);
+    dropdownItem += '</option>';
+    $('#exportCollectionDropdown').append(dropdownItem);
   }
 }
 
@@ -344,4 +388,8 @@ $('#saveNew').click(function(event) {
   catch(err) {
     alert('Not valid JSON');
   }
+});
+
+$('#exportButton').click(function(event) {
+  exportSelection();
 });
