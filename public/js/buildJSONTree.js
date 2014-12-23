@@ -22,10 +22,16 @@ function buildJSONTree(json) {
   return children;  
 }
 
+// Testing
+/*var data = '{"name":"flapjack", "favorites":{"dog":"corgi", "food":"sushi", "movie":"The Incredibles"}, "contact":{"email":"alexandrag103@gmail.com", "other":"smoke signals"}}';
+buildTree(data);*/
+
 function buildTree(data) {
 
-  var treeData = {name:'/'};
+  var treeData = {name:'About Me'};
   treeData.children = buildJSONTree(JSON.parse(data));
+
+  console.log(treeData);
 
   var margin = {top: 20, right: 80, bottom: 20, left: 300},
       width = 1200 - margin.right - margin.left,
