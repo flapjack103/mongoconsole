@@ -65,6 +65,10 @@ io.on('connection', function(socket) {
   socket.on('settings', function(msg) {
     getSettings();
   });
+  socket.on('importFile', function(msg) {
+    console.log('Importing File');
+    importFile(msg);
+  });
   socket.on('error', function(err) {
     console.log("ERR: ", err);
   });
@@ -161,6 +165,11 @@ function getStats() {
 
 function getSettings() {
   //TODO
+}
+
+function importFile(msg) {
+  //STUB
+  // {collection:"", fileContents:"json"}
 }
 
 module.exports = MongoConsole;
