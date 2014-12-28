@@ -35,8 +35,8 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
           <li><a href="#">Dashboard</a></li>
-          <li><a href="settings">Settings</a></li>
-          <li><a href="help">Help</a></li>
+          <li><a href="#" data-toggle="modal" data-target="#settingsModal">Settings</a></li>
+          <li><a href="#" data-toggle="modal" data-target="#helpModal">Help</a></li>
         </ul>
       </div>
     </div>
@@ -164,6 +164,45 @@
         </div>
         <div class="modal-footer">
           <button id="saveNew" type="button" class="btn btn-default" data-dismiss="modal">Import</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title" id="settingsModalLabel">MongoDB Config</h4>
+        </div>
+        <div id="settingsContent" class="modal-body">
+          <p> Coming Soon! </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title" id="helpModalLabel">MongoDB Console Help</h4>
+        </div>
+        <div id="helpContent" class="modal-body">
+          <p> For requests and questions, please contact alexandrag103@gmail.com</p>
+          <h4> General Information</h4>
+          <p> Select a database by clicking on the name of the DB in the Dashboard. This will then show the list of all collections in the DB on the left panel.</p>
+          <p> To view docs/entries in a collection, select the collection from the left panel and a table will be generated. You can use this table to add, delete, and edit docs. You can also view the JSON in a tree format by clicking the tree icon in the operate column.</p>
+          <p> Collections or individual entries can be exported to a JSON file by clicking the export option in the left panel. This will give you the option to export selected rows or an entire collection in the current DB</p>
+          <p> JSON files can be imported into a collection by clicking the 'add' button in the table view and selecting a file for import. Entries must be in an array otherwise the entire JSON object will be treated as a single entry. Please use common sense when importing.</p>
+        </div>
+        <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
