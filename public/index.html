@@ -142,10 +142,28 @@
           <h4 class="modal-title" id="addModalLabel">Add an Entry</h4>
         </div>
         <div class="modal-body">
-          <textarea id="addContent" > </textarea>
+
+          <div role="tabpanel">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+            <li id="textAreaAddTab" role="presentation" class="active"><a href="#addEntry" aria-controls="addEntry" role="tab" data-toggle="tab">Add Entry</a></li>
+              <li id="importFileTab" role="presentation"><a href="#importFile" aria-controls="importFile" role="tab" data-toggle="tab">Import JSON File</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="addEntry">
+                <textarea id="addContent"> </textarea>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="importFile">
+              <input type="file" name="file" id="fileSelection">
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
-          <button id="saveNew" type="button" class="btn btn-default" data-dismiss="modal">Save</button>
+          <button id="saveNew" type="button" class="btn btn-default" data-dismiss="modal">Import</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
