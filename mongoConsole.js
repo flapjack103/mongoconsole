@@ -105,7 +105,7 @@ function deleteEntry(msg) {
 function getEntries(msg) {
   mongo.findAll(msg.collection, function(err, results) {
     if(!err) {
-      io.emit('entries', results);
+      io.emit('entries', {action:msg.action, results:results});
     }
     else {
       console.log('MONGO FIND ERR: ', err);
