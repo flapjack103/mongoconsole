@@ -1,6 +1,6 @@
 {
   "name": "mongoconsole",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A webserver for viewing/editing MongoDB data",
   "main": "index.js",
   "scripts": {

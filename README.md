@@ -31,3 +31,6 @@ A web UI for interacting with MongoDB.
 ## Release History
 
 * 0.1.0 Initial release
+
+* 0.1.1 Bug Fix
+	* JSON Tree root changed to 'root'
