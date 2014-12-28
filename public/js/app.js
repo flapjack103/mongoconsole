@@ -86,6 +86,29 @@ function exportSelection(entries) {
 
 }
 
+function uploadFile() {
+  var file = document.getElementById("fileSelection").files[0];
+  if (file) {
+    var reader = new FileReader();
+    reader.readAsText(file, "UTF-8");
+    reader.onload = function (evt) {
+      var fileJSON = evt.target.result;
+      try {
+        var entries = JSON.parse(fileJSON);
+        for(var i = 0; i < entries.length; i++) {
+          socket.emit('add', {collection: currCollection, entry:entries[i]});
+        }
+      }
+      catch(e) {
+        alert('Not a valid JSON file');
+      }
+    }
+    reader.onerror = function (evt) {
+      alert("error reading file");
+    }
+  }
+}
+
 function onCollectionSelect(event) {
   var collectionName = event.target.parentElement.id;
   collectionName = collectionName.replace(/\-/g, '.');
@@ -282,6 +305,11 @@ function loadBootstrapTable(data) {
       events: operateEvents
     }]
   });
+
+  $('.icon-refresh').click(function(event) {
+    console.log('refreshing');
+    socket.emit('entries', {action:'display', collection:currCollection});
+  });
 }
 
 function operateFormatter(value, row, index) {
@@ -374,14 +402,19 @@ $('#hideTree').click(function(event) {
 };
 
 $('#saveNew').click(function(event) {
-  var newJSON = $('#addContent').val();
-  try {
-    var obj = JSON.parse(newJSON);
-    $('#addContent').val('');
-    socket.emit('add', {collection: currCollection, entry:obj});
+  if($('textAreaAddTab').hasClass('active')) {
+    var newJSON = $('#addContent').val();
+    try {
+      var obj = JSON.parse(newJSON);
+      $('#addContent').val('');
+      socket.emit('add', {collection: currCollection, entry:obj});
+    }
+    catch(err) {
+      alert('Not valid JSON');
+    }
   }
-  catch(err) {
-    alert('Not valid JSON');
+  else {
+    uploadFile();
   }
 });
 
