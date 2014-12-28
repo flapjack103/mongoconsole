@@ -159,3 +159,16 @@ body {
 #tree-container {
   margin-bottom: 100px;
 }
+
+.form-control {
+  width: auto; /*Prevent dropdown from stretching */
+}
+
+.tab-content {
+  padding: 10px;
+}
+
+#fileSaveInfo {
+  margin: 10px;
+  width: 200px;
+}

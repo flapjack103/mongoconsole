@@ -11,9 +11,12 @@ socket.on('collections', function(msg) {
 
 socket.on('entries', function(msg) {
   console.log('Got entries for collection');
-  generateEntryTable(msg);
+  if(msg.action == 'display')
+    generateEntryTable(msg.results);
+  if(msg.action == 'export')
+    exportSelection(msg.results);
 });
-  
+
 socket.on('databases', function(msg) {
   console.log('Got database list: ', msg);
   generateDatabaseList(msg.databases);
@@ -29,8 +32,25 @@ initButtonEvents();
 function initButtonEvents() {
 
   $('#exportModal').on('show.bs.modal', function (event) {
+    var rows = $('#table-javascript').bootstrapTable('getSelections');
+    console.log('selection:', rows);
     var modal = $(this);
-    // TODO
+    if(rows.length > 0 && !rows.selector) {
+      modal.find('.currentSelectionContent').html('<h4>Number of Selected Rows</h4> ' + rows.length);
+    }
+    else {
+      modal.find('.currentSelectionContent').html('No Rows Selected');
+    }
+
+    $('#selection a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    });
+    $('#collection a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    });
+
   });
 
   $('#statsModal').on('hidden.bs.modal', function (event) {
@@ -46,14 +66,30 @@ function initButtonEvents() {
   });
 }
 
-function exportSelection() {
+function exportSelection(entries) {
+
+  var filename = $('#exportFileName').val() + '.json';
+  if(filename == '.json') {
+    filename = 'mongoData.json';
+  }
+
+  // http://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server
+  var pom = document.createElement('a');
+  pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(entries)));
+  pom.setAttribute('download', filename);
+  pom.click();
+
+  // Clean up
+  $('#exportModal').modal('hide');
+  $('#exportFileName').val('');
+  $('#table-javascript').bootstrapTable('uncheckAll');
 
 }
 
 function onCollectionSelect(event) {
   var collectionName = event.target.parentElement.id;
   collectionName = collectionName.replace(/\-/g, '.');
-  socket.emit('entries', {collection:collectionName});
+  socket.emit('entries', {action:'display', collection:collectionName});
   $('#collectionTitle').html('\'' + collectionName + '\'' + ' Collection');
   currCollection = collectionName;
 }
@@ -101,7 +137,10 @@ function generateDatabaseList(dbs) {
 function generateCollectionList(collections) {
   var listItem, dropdownItem;
 
+  // Clear our collection list
   $('#collections').html('<li class="active"><a href="">Collections</a></li>');
+  // Clear our collection export dropdown
+  $('#exportCollectionDropdown').html('');
 
   // In case we have no collections in the DB
   if(collections.length == 0) {
@@ -130,10 +169,10 @@ function generateCollectionList(collections) {
     });
 
     // Add our collection as a dropdown option for export
-    dropdownItem = '<li role="presentation"><a role="menuitem" tabindex="-1" href="#">';
+    dropdownItem = '<option value="' + collections[i] + '"">';
     dropdownItem += collections[i];
-    dropdownItem += '</a></li>';
-    $('#exportContent ul').append(dropdownItem);
+    dropdownItem += '</option>';
+    $('#exportCollectionDropdown').append(dropdownItem);
   }
 }
 
@@ -261,77 +300,77 @@ function operateFormatter(value, row, index) {
 
 window.operateEvents = {
   'click .tree': function (e, value, row, index) {    
-      $('#tree-container').html('');
+    $('#tree-container').html('');
       buildTree(row.json);//, "#tree-container");
-     $('#tree-container').prepend('<button class="btn btn-default btn-sm" id="expandAll">Expand All</button><button class="btn btn-default btn-sm" id="hideTree">Hide Tree</button>');
+$('#tree-container').prepend('<button class="btn btn-default btn-sm" id="expandAll">Expand All</button><button class="btn btn-default btn-sm" id="hideTree">Hide Tree</button>');
 
-     $('#expandAll').click(function(event) {
+$('#expandAll').click(function(event) {
 
-     });
+});
 
-     $('#hideTree').click(function(event) {
-      $('#tree-container').html('');
-      $("html, body").animate({ scrollTop: 0 }, "slow");
-     });
-  },
+$('#hideTree').click(function(event) {
+  $('#tree-container').html('');
+  $("html, body").animate({ scrollTop: 0 }, "slow");
+});
+},
 
-  'click .edit': function (e, value, row, index) {
+'click .edit': function (e, value, row, index) {
 
-    var buttons = '<button class="btn btn-default btn-sm" id="save">Save</button><button class="btn btn-default btn-sm" id="cancel">Cancel</button>';
-    var originalJSON = row.json;
+  var buttons = '<button class="btn btn-default btn-sm" id="save">Save</button><button class="btn btn-default btn-sm" id="cancel">Cancel</button>';
+  var originalJSON = row.json;
 
-    $('#table-javascript').bootstrapTable('hideColumn', 'operate');
+  $('#table-javascript').bootstrapTable('hideColumn', 'operate');
 
-    $('#table-javascript').bootstrapTable('updateRow', {
-      index: index,
-      row: {
-        json: '<textarea id="editing">' + row.json + '</textarea>' + buttons
-      }
-    });
-
-    $('#save').click(function(event) {
-      var newJSON = $('#editing').val();
-      try {
-        var obj = JSON.parse(newJSON);
-        socket.emit('edit', {collection: currCollection, id:row.id, json:obj});
-        $('#table-javascript').bootstrapTable('updateRow', {
-          index: index,
-          row: {
-            json: JSON.stringify(obj)
-          }
-        });
-      }
-      catch(err) {
-        alert('Not valid JSON');
-         $('#table-javascript').bootstrapTable('updateRow', {
-          index: index,
-          row: {
-            json: originalJSON
-          }
-        });
-      }
-      $('#table-javascript').bootstrapTable('showColumn', 'operate');
-    });
-
-     $('#cancel').click(function(event) {
-         $('#table-javascript').bootstrapTable('updateRow', {
-          index: index,
-          row: {
-            json: originalJSON
-          }
-        });
-        $('#table-javascript').bootstrapTable('showColumn', 'operate');
-     });
-  },
-  'click .remove': function (e, value, row, index) {
-    if(confirm('Are you sure you want to delete this entry?')) {
-      socket.emit('delete', {collection:currCollection, id:row.id});
-      $('#table-javascript').bootstrapTable('remove', {
-                    field: 'id',
-                    values: [row.id]
-                });
+  $('#table-javascript').bootstrapTable('updateRow', {
+    index: index,
+    row: {
+      json: '<textarea id="editing">' + row.json + '</textarea>' + buttons
     }
+  });
+
+  $('#save').click(function(event) {
+    var newJSON = $('#editing').val();
+    try {
+      var obj = JSON.parse(newJSON);
+      socket.emit('edit', {collection: currCollection, id:row.id, json:obj});
+      $('#table-javascript').bootstrapTable('updateRow', {
+        index: index,
+        row: {
+          json: JSON.stringify(obj)
+        }
+      });
+    }
+    catch(err) {
+      alert('Not valid JSON');
+      $('#table-javascript').bootstrapTable('updateRow', {
+        index: index,
+        row: {
+          json: originalJSON
+        }
+      });
+    }
+    $('#table-javascript').bootstrapTable('showColumn', 'operate');
+  });
+
+  $('#cancel').click(function(event) {
+   $('#table-javascript').bootstrapTable('updateRow', {
+    index: index,
+    row: {
+      json: originalJSON
+    }
+  });
+   $('#table-javascript').bootstrapTable('showColumn', 'operate');
+ });
+},
+'click .remove': function (e, value, row, index) {
+  if(confirm('Are you sure you want to delete this entry?')) {
+    socket.emit('delete', {collection:currCollection, id:row.id});
+    $('#table-javascript').bootstrapTable('remove', {
+      field: 'id',
+      values: [row.id]
+    });
   }
+}
 };
 
 $('#saveNew').click(function(event) {
@@ -344,4 +383,21 @@ $('#saveNew').click(function(event) {
   catch(err) {
     alert('Not valid JSON');
   }
+});
+
+$('#exportButton').click(function(event) {
+
+   // Determine if we're exporting from selection or collection
+   if($('#selectionTab').hasClass('active')){
+    var rows = $('#table-javascript').bootstrapTable('getSelections');
+    if(rows.length == 0 || rows.selector) {
+      alert('Nothing to export');
+      return;
+    }
+    exportSelection(rows);
+  }
+  else {
+    socket.emit('entries', {collection:$('#exportCollectionDropdown').val(), action:'export'});
+  }
+  
 });

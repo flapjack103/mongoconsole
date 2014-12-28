@@ -1,151 +1,170 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="A web view for MongoDB">
-    <meta name="author" content="Alexandra Grant">
-    <link rel="icon" href="../../favicon.ico">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A web view for MongoDB">
+  <meta name="author" content="Alexandra Grant">
+  <link rel="icon" href="../../favicon.ico">
 
-    <title>MongoDB Console</title>
+  <title>MongoDB Console</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/bootstrap-table.min.css">
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/bootstrap-table.min.css">
 
-    <!-- Custom styles for this template -->
-    <link href="css/app.css" rel="stylesheet">
-  </head>
+  <!-- Custom styles for this template -->
+  <link href="css/app.css" rel="stylesheet">
+</head>
 
-  <body>
+<body>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#"><img height="20px" src="img/mongodb.png"/>MongoDB Console</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Dashboard</a></li>
-            <li><a href="settings">Settings</a></li>
-            <li><a href="help">Help</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
-            <li id="analytics" data-toggle="modal" data-target="#statsModal"><a href="#">Stats</a></li>
-            <li id="export" data-toggle="modal" data-target="#exportModal"><a href="#">Export</a></li>
-          </ul>
-          <ul id="collections" class="nav nav-sidebar">
-            <li class="active"><a href="">Collections</a></li>
-          </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
-
-          <div id="dbList" class="row placeholders">     
-          </div>
-          
-          <div id="entryTableDiv">
-            <h2 id="collectionTitle" class="sub-header">Section title</h2>
-              <table id="table-javascript"></table>
-          </div>
-          <div id="tree-container"></div>
-        </div> 
-
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"><img height="20px" src="img/mongodb.png"/>MongoDB Console</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#">Dashboard</a></li>
+          <li><a href="settings">Settings</a></li>
+          <li><a href="help">Help</a></li>
+        </ul>
       </div>
     </div>
+  </nav>
 
-    <!-- Modal -->
-    <div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            <h4 class="modal-title" id="exportModalLabel">Export Options</h4>
-          </div>
-          <div id="exportContent" class="modal-body">
-            <p>Export current selection or choose a collection:</p>
-            <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
-              Collections
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-3 col-md-2 sidebar">
+        <ul class="nav nav-sidebar">
+          <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+          <li id="analytics" data-toggle="modal" data-target="#statsModal"><a href="#">Stats</a></li>
+          <li id="export" data-toggle="modal" data-target="#exportModal"><a href="#">Export</a></li>
+        </ul>
+        <ul id="collections" class="nav nav-sidebar">
+          <li class="active"><a href="">Collections</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h1 class="page-header">Dashboard</h1>
+
+        <div id="dbList" class="row placeholders">     
+        </div>
+
+        <div id="entryTableDiv">
+          <h2 id="collectionTitle" class="sub-header">Section title</h2>
+          <table id="table-javascript"></table>
+        </div>
+        <div id="tree-container"></div>
+      </div> 
+
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title" id="exportModalLabel">Export Options</h4>
+        </div>
+        <div id="exportContent" class="modal-body">
+
+          <div role="tabpanel">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+              <li id="selectionTab" role="presentation" class="active"><a href="#selection" aria-controls="selection" role="tab" data-toggle="tab">Selection</a></li>
+              <li id="collectionTab" role="presentation"><a href="#collection" aria-controls="collection" role="tab" data-toggle="tab">Pick Collection</a></li>
             </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="selection">
+                <div class="currentSelectionContent"></div>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="collection">
+                <h4>Collection Name</h4>
+                <select id="exportCollectionDropdown" class="form-control">
+                </select>
+              </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Export</button>
+          <div id="fileSaveInfo">
+            <h4>Save As</h4>
+            <div class="input-group">
+            <input id="exportFileName" type="text" class="form-control" placeholder="mongoData" aria-describedby="basic-addon2">
+              <span class="input-group-addon" id="basic-addon2">.json</span>
+            </div>
           </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button id="exportButton" type="button" class="btn btn-primary">Export</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="modal fade" id="statsModal" tabindex="-1" role="dialog" aria-labelledby="statsModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            <h4 class="modal-title" id="statsModalLabel">DB Stats</h4>
-          </div>
-          <div id="statsContent" class="modal-body">
-            <p>Database Statistics</p>
-            <table id="stats-table-javascript"></table>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
+  <div class="modal fade" id="statsModal" tabindex="-1" role="dialog" aria-labelledby="statsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title" id="statsModalLabel">DB Stats</h4>
+        </div>
+        <div id="statsContent" class="modal-body">
+          <p>Database Statistics</p>
+          <table id="stats-table-javascript"></table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="statsModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            <h4 class="modal-title" id="addModalLabel">Add an Entry</h4>
-          </div>
-          <div class="modal-body">
-            <textarea id="addContent" > </textarea>
-          </div>
-          <div class="modal-footer">
-            <button id="saveNew" type="button" class="btn btn-default" data-dismiss="modal">Save</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
+  <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="statsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title" id="addModalLabel">Add an Entry</h4>
+        </div>
+        <div class="modal-body">
+          <textarea id="addContent" > </textarea>
+        </div>
+        <div class="modal-footer">
+          <button id="saveNew" type="button" class="btn btn-default" data-dismiss="modal">Save</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <div id="toolbar">
-      <div class="form-inline" role="form">
-          <div class="form-group">
-              <div class="input-group">
-              <button data-toggle="modal" data-target="#addModal" type="button" class="btn btn-default">
-                 <a class="ml10" href="javascript:void(0)" title="Add" style="text-decoration: none">
-                    Add <i class="glyphicon glyphicon-plus"></i>
-                  </a>
-                </button>
-                </div>
-          </div>
+  <div id="toolbar">
+    <div class="form-inline" role="form">
+      <div class="form-group">
+        <div class="input-group">
+          <button data-toggle="modal" data-target="#addModal" type="button" class="btn btn-default">
+           <a class="ml10" href="javascript:void(0)" title="Add" style="text-decoration: none">
+            Add <i class="glyphicon glyphicon-plus"></i>
+          </a>
+        </button>
       </div>
     </div>
+  </div>
+</div>
 
 
     <!-- Bootstrap core JavaScript
@@ -160,4 +179,4 @@
     <script src="js/buildJSONTree.js"></script>
     <script src="js/app.js"></script>
   </body>
-</html>
+  </html>
