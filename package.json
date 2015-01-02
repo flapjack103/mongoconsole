@@ -16,9 +16,9 @@
   "author": "Alexandra Grant <alexandrag103@gmail.com>",
   "dependencies": {
     "express": "3.1.0",
-    "socket.io": "*",
-    "mongodb": "*",
-    "mongoose": "*"
+    "socket.io": "1.2.1",
+    "mongodb": "1.4.25",
+    "mongoose": "3.8.20"
   },
   "devDependencies": {
     "mocha": "^2.0.1"

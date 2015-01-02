@@ -172,3 +172,10 @@ body {
   margin: 10px;
   width: 200px;
 }
+
+.alert {
+  display: none;
+  position: absolute;
+  margin-top: -15px;
+  margin-left: 200px;
+}

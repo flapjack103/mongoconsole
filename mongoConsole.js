@@ -72,13 +72,14 @@ io.on('connection', function(socket) {
 
 /* WebSocket Request Helper Functions */
 function addEntry(msg) {
-  console.log(msg);
   mongo.add(msg.entry, msg.collection, function(err, result) {
     if(err) {
       console.log('MONGO ADD ERR: ', err);
+      io.emit('err', {err:"Add Error: " + err});
     }
     else {
-      getEntries({collection:msg.collection});
+      io.emit('success', {ok:'Successfully added doc(s) to ' + msg.collection + ' collection.'});
+      getEntries({collection:msg.collection, action:'display'});
     }
   });
 }
@@ -87,9 +88,7 @@ function editEntry(msg) {
   mongo.update({_id: new ObjectId(msg.id)}, msg.json, msg.collection, function(err, result){
     if(err) {
       console.log('MONGO UPDATE ERR: ', err);
-    }
-    else {
-      console.log(result);
+      io.emit('err', {err:"Update Error: " + err});
     }
   });
 }
@@ -98,6 +97,10 @@ function deleteEntry(msg) {
   mongo.remove({_id: new ObjectId(msg.id)}, msg.collection, function(err, result) {
     if(err) {
       console.log('MONGO DEL ERR: ', err);
+      io.emit('error', {err:"Delete Error: " + err});
+    }
+    if(result === 0) {
+      io.emit('error', {err:"Error removing doc " + msg.id + " from " + msg.collection + " collection"});
     }
   });
 }
@@ -109,6 +112,7 @@ function getEntries(msg) {
     }
     else {
       console.log('MONGO FIND ERR: ', err);
+      io.emit('error', {err:"Fetch Error: " + err});
     }
   });
 }

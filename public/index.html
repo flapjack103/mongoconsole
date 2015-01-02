@@ -42,6 +42,7 @@
     </div>
   </nav>
 
+
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm-3 col-md-2 sidebar">
@@ -55,6 +56,17 @@
         </ul>
       </div>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+        <div id="errorAlert" class="alert alert-warning alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <strong>Warning!</strong> <span id="errorMessage"></span>
+        </div>
+
+        <div id="successAlert" class="alert alert-success alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <strong>Success!</strong> <span id="successMessage"></span>
+        </div>
+
         <h1 class="page-header">Dashboard</h1>
 
         <div id="dbList" class="row placeholders">     
@@ -103,7 +115,7 @@
           <div id="fileSaveInfo">
             <h4>Save As</h4>
             <div class="input-group">
-            <input id="exportFileName" type="text" class="form-control" placeholder="mongoData" aria-describedby="basic-addon2">
+              <input id="exportFileName" type="text" class="form-control" placeholder="mongoData" aria-describedby="basic-addon2">
               <span class="input-group-addon" id="basic-addon2">.json</span>
             </div>
           </div>
@@ -147,7 +159,7 @@
 
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-            <li id="textAreaAddTab" role="presentation" class="active"><a href="#addEntry" aria-controls="addEntry" role="tab" data-toggle="tab">Add Entry</a></li>
+              <li id="textAreaAddTab" role="presentation" class="active"><a href="#addEntry" aria-controls="addEntry" role="tab" data-toggle="tab">Add Entry</a></li>
               <li id="importFileTab" role="presentation"><a href="#importFile" aria-controls="importFile" role="tab" data-toggle="tab">Import JSON File</a></li>
             </ul>
 
@@ -157,7 +169,7 @@
                 <textarea id="addContent"> </textarea>
               </div>
               <div role="tabpanel" class="tab-pane" id="importFile">
-              <input type="file" name="file" id="fileSelection">
+                <input type="file" name="file" id="fileSelection">
               </div>
             </div>
           </div>
@@ -170,7 +182,7 @@
     </div>
   </div>
 
-   <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+  <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -187,7 +199,7 @@
     </div>
   </div>
 
-   <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+  <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

@@ -27,6 +27,18 @@ socket.on('stats', function(msg) {
   generateStatsContent(msg);
 });
 
+socket.on('error', function(msg) {
+  $('#errorMessage').html(msg.err);
+  $('#errorAlert').show().delay(3000).fadeOut("slow");
+
+});
+
+socket.on('success', function(msg) {
+  $('#successMessage').html(msg.ok);
+  $('#successAlert').show();
+  $('#successAlert').delay(3000).fadeOut("slow");
+});
+
 initButtonEvents();
 
 function initButtonEvents() {
@@ -402,11 +414,13 @@ $('#hideTree').click(function(event) {
 };
 
 $('#saveNew').click(function(event) {
-  if($('textAreaAddTab').hasClass('active')) {
+  if($('#addEntry').hasClass('active')) {
+    console.log('active text area');
     var newJSON = $('#addContent').val();
     try {
       var obj = JSON.parse(newJSON);
       $('#addContent').val('');
+      console.log('add new!');
       socket.emit('add', {collection: currCollection, entry:obj});
     }
     catch(err) {
