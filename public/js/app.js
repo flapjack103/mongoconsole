@@ -35,8 +35,7 @@ socket.on('error', function(msg) {
 
 socket.on('success', function(msg) {
   $('#successMessage').html(msg.ok);
-  $('#successAlert').show();
-  $('#successAlert').delay(3000).fadeOut("slow");
+  $('#successAlert').show().delay(3000).fadeOut("slow");
 });
 
 initButtonEvents();
