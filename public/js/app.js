@@ -5,12 +5,10 @@ socket.emit('databases', {});
 socket.emit('collections', {});
 
 socket.on('collections', function(msg) {
-  console.log('Got collection list: ', msg);
   generateCollectionList(msg);
 });
 
 socket.on('entries', function(msg) {
-  console.log('Got entries for collection');
   if(msg.action == 'display')
     generateEntryTable(msg.results);
   if(msg.action == 'export')
@@ -18,12 +16,10 @@ socket.on('entries', function(msg) {
 });
 
 socket.on('databases', function(msg) {
-  console.log('Got database list: ', msg);
   generateDatabaseList(msg.databases);
 });
 
 socket.on('stats', function(msg) {
-  console.log(msg);
   generateStatsContent(msg);
 });
 
@@ -44,7 +40,6 @@ function initButtonEvents() {
 
   $('#exportModal').on('show.bs.modal', function (event) {
     var rows = $('#table-javascript').bootstrapTable('getSelections');
-    console.log('selection:', rows);
     var modal = $(this);
     if(rows.length > 0 && !rows.selector) {
       modal.find('.currentSelectionContent').html('<h4>Number of Selected Rows</h4> ' + rows.length);
@@ -146,18 +141,22 @@ function generateStatsContent(stats) {
 
 function generateDatabaseList(dbs) {
 
-  for(var i = 0; i < dbs.length; i++) {
-    var dbItem = '<a href="#" id ="' + dbs[i].name + '"'; 
+  var len = dbs.length;
+  for(var i = 0; i < len; i++) {
+    var db = dbs[i];
+    console.log("db: ", db);
+    var dbSize = convertSize(db.sizeOnDisk); // Convert this to human readable
+    var dbItem = '<a href="#" id ="' + db.name + '"'; 
     dbItem += '<div class="col-xs-6 col-sm-3 placeholder dbLogo"><img src="img/mongodb.png" class="img-responsive" alt="DB icon thumbnail">';
-    dbItem += '<h4>' + dbs[i].name + ' database</h4>';
-    dbItem += '<span class="text-muted">Size: ' + dbs[i].sizeOnDisk+ '</span></div></a>';
+    dbItem += '<h4>' + db.name + ' database</h4>';
+    dbItem += '<span class="text-muted">Size: ' + dbSize;
+    dbItem += db.empty ? ' (empty) </span></div></a>' : '</span></div></a>';
     $('#dbList').append(dbItem);
 
     // Add click event to change DB
-    $('#' + dbs[i].name).click(function(event) {
+    $('#' + db.name).click(function(event) {
       var id = event.target.parentElement.id;
       if(id != '' && id != 'dbList') {
-        console.log('Switching DB to: ', id);
         socket.emit('switch_db', {dbName:id});
         $('.dbLogo').removeClass('active');
         $('#' + id).addClass('active');
@@ -182,15 +181,16 @@ function generateCollectionList(collections) {
     $('#collections').append(listItem);
   }
 
-  for(var i = 0; i < collections.length; i++) {
+  var len = collections.length;
+  for(var i = 0; i < len; i++) {
 
-    // Replace '.' with '-' since jQuery doesn't play nice with periods
+    // Replace '.' with '-' since jQuery doesn't play nice with periods in ids
     var collectionID = collections[i].replace(/\./g, '-');
 
     // Build our list item
     listItem = '<li id="';
     listItem += collectionID;
-    listItem += '"><a href="#">';
+    listItem += '"><a href="#entryTableDiv">'; //scroll down to table
     listItem += collections[i];
     listItem += '</a></li>';
 
@@ -212,8 +212,8 @@ function generateCollectionList(collections) {
 
 function generateEntryTable(entries) {
   var data = [];
-
-  for(var i = 0; i < entries.length; i++) {
+  var len = entries.length;
+  for(var i = 0; i < len; i++) {
     var entry = entries[i];
     var slimEntry = {};
 
@@ -269,7 +269,6 @@ function loadBootstrapTable(data) {
 
   // If the table has already been loaded once, simply reload the new data
   if($('#table-javascript').html() != '') {
-    console.log('Updating table');
     $('#table-javascript').bootstrapTable('load', data);
     return;
   }
@@ -338,88 +337,89 @@ function operateFormatter(value, row, index) {
 }
 
 window.operateEvents = {
-  'click .tree': function (e, value, row, index) {    
+  'click .tree': function (e, value, row, index) {
+
     $('#tree-container').html('');
-      buildTree(row.json);//, "#tree-container");
-$('#tree-container').prepend('<button class="btn btn-default btn-sm" id="expandAll">Expand All</button><button class="btn btn-default btn-sm" id="hideTree">Hide Tree</button>');
+    buildTree(row.json);
 
-$('#expandAll').click(function(event) {
+    $('#tree-container').prepend('<button class="btn btn-default btn-sm" id="expandAll">Expand All</button><button class="btn btn-default btn-sm" id="hideTree">Hide Tree</button>');
 
-});
-
-$('#hideTree').click(function(event) {
-  $('#tree-container').html('');
-  $("html, body").animate({ scrollTop: 0 }, "slow");
-});
-},
-
-'click .edit': function (e, value, row, index) {
-
-  var buttons = '<button class="btn btn-default btn-sm" id="save">Save</button><button class="btn btn-default btn-sm" id="cancel">Cancel</button>';
-  var originalJSON = row.json;
-
-  $('#table-javascript').bootstrapTable('hideColumn', 'operate');
-
-  $('#table-javascript').bootstrapTable('updateRow', {
-    index: index,
-    row: {
-      json: '<textarea id="editing">' + row.json + '</textarea>' + buttons
-    }
-  });
-
-  $('#save').click(function(event) {
-    var newJSON = $('#editing').val();
-    try {
-      var obj = JSON.parse(newJSON);
-      socket.emit('edit', {collection: currCollection, id:row.id, json:obj});
-      $('#table-javascript').bootstrapTable('updateRow', {
-        index: index,
-        row: {
-          json: JSON.stringify(obj)
-        }
-      });
-    }
-    catch(err) {
-      alert('Not valid JSON');
-      $('#table-javascript').bootstrapTable('updateRow', {
-        index: index,
-        row: {
-          json: originalJSON
-        }
-      });
-    }
-    $('#table-javascript').bootstrapTable('showColumn', 'operate');
-  });
-
-  $('#cancel').click(function(event) {
-   $('#table-javascript').bootstrapTable('updateRow', {
-    index: index,
-    row: {
-      json: originalJSON
-    }
-  });
-   $('#table-javascript').bootstrapTable('showColumn', 'operate');
- });
-},
-'click .remove': function (e, value, row, index) {
-  if(confirm('Are you sure you want to delete this entry?')) {
-    socket.emit('delete', {collection:currCollection, id:row.id});
-    $('#table-javascript').bootstrapTable('remove', {
-      field: 'id',
-      values: [row.id]
+    $('#expandAll').click(function(event) {
+      //TODO
     });
+
+    $('#hideTree').click(function(event) {
+      $('#tree-container').html('');
+      $("html, body").animate({ scrollTop: 0 }, "slow");
+    });
+  },
+
+  'click .edit': function (e, value, row, index) {
+
+    var buttons = '<button class="btn btn-default btn-sm" id="save">Save</button><button class="btn btn-default btn-sm" id="cancel">Cancel</button>';
+    var originalJSON = row.json;
+
+    $('#table-javascript').bootstrapTable('hideColumn', 'operate');
+
+    $('#table-javascript').bootstrapTable('updateRow', {
+      index: index,
+      row: {
+        json: '<textarea id="editing">' + row.json + '</textarea>' + buttons
+      }
+    });
+
+    $('#save').click(function(event) {
+      var newJSON = $('#editing').val();
+      try {
+        var obj = JSON.parse(newJSON);
+        socket.emit('edit', {collection: currCollection, id:row.id, json:obj});
+        $('#table-javascript').bootstrapTable('updateRow', {
+          index: index,
+          row: {
+            json: JSON.stringify(obj)
+          }
+        });
+      }
+      catch(err) {
+        alert('Not valid JSON');
+        $('#table-javascript').bootstrapTable('updateRow', {
+          index: index,
+          row: {
+            json: originalJSON
+          }
+        });
+      }
+      $('#table-javascript').bootstrapTable('showColumn', 'operate');
+    });
+
+    $('#cancel').click(function(event) {
+     $('#table-javascript').bootstrapTable('updateRow', {
+      index: index,
+      row: {
+        json: originalJSON
+      }
+    });
+     $('#table-javascript').bootstrapTable('showColumn', 'operate');
+   });
+  },
+
+  'click .remove': function (e, value, row, index) {
+    if(confirm('Are you sure you want to delete this entry?')) {
+      socket.emit('delete', {collection:currCollection, id:row.id});
+      $('#table-javascript').bootstrapTable('remove', {
+        field: 'id',
+        values: [row.id]
+      });
+    }
   }
-}
 };
 
 $('#saveNew').click(function(event) {
   if($('#addEntry').hasClass('active')) {
-    console.log('active text area');
     var newJSON = $('#addContent').val();
     try {
       var obj = JSON.parse(newJSON);
       $('#addContent').val('');
-      console.log('add new!');
       socket.emit('add', {collection: currCollection, entry:obj});
     }
     catch(err) {
@@ -445,5 +445,46 @@ $('#exportButton').click(function(event) {
   else {
     socket.emit('entries', {collection:$('#exportCollectionDropdown').val(), action:'export'});
   }
-  
 });
+
+
+$('#deleteButton').click(function(event) {
+  var rows = $('#table-javascript').bootstrapTable('getSelections');
+  var len = rows.length;
+  if(len === 0 || rows.selector) {
+    return;
+  }
+
+  if(confirm('Are you sure you want to delete these ' + len + ' entries?')) {
+    for(var i = 0; i < len; i++) {
+      var row = rows[i];
+      socket.emit('delete', {collection:currCollection, id:row.id});
+      $('#table-javascript').bootstrapTable('remove', {
+        field: 'id',
+        values: [row.id]
+      });
+    }
+  }
+});
+
+function convertSize(bytes) {
+  if(bytes < 1024)
+    return bytes + ' bytes';
+  else {
+    kb = (bytes * 1.0)/1024.0;
+    if(kb < 1024)
+      return kb.toFixed(2) + ' kb';
+    else
+      return (kb/1024.0).toFixed(2) + ' Mb';
+  }
+}
+
+
+
+
+
+
+
+
+
+
