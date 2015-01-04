@@ -144,7 +144,6 @@ function generateDatabaseList(dbs) {
   var len = dbs.length;
   for(var i = 0; i < len; i++) {
     var db = dbs[i];
-    console.log("db: ", db);
     var dbSize = convertSize(db.sizeOnDisk); // Convert this to human readable
     var dbItem = '<a href="#" id ="' + db.name + '"'; 
     dbItem += '<div class="col-xs-6 col-sm-3 placeholder dbLogo"><img src="img/mongodb.png" class="img-responsive" alt="DB icon thumbnail">';
@@ -317,7 +316,6 @@ function loadBootstrapTable(data) {
   });
 
   $('.icon-refresh').click(function(event) {
-    console.log('refreshing');
     socket.emit('entries', {action:'display', collection:currCollection});
   });
 }
@@ -467,6 +465,15 @@ $('#deleteButton').click(function(event) {
   }
 });
 
+$('#textAreaAddTab').click(function(event) {
+  $('#saveNew').html('Add');
+});
+
+$('#importFileTab').click(function(event) {
+  $('#saveNew').html('Import');
+});
+
+// Convert bytes to a kb and Mb
 function convertSize(bytes) {
   if(bytes < 1024)
     return bytes + ' bytes';
