@@ -20,9 +20,6 @@
     "mongodb": "1.4.25",
     "mongoose": "3.8.20"
   },
-  "devDependencies": {
-    "mocha": "^2.0.1"
-  },
   "licenses": [
     {
       "type": "MIT",
