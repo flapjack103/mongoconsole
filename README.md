@@ -37,4 +37,3 @@ A web UI for interacting with MongoDB.
 	* Can now delete multiple docs at once
 	* Added 'about' info and disclaimer
 	* Fixed refresh when adding new docs to collection
-	* 
