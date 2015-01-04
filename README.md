@@ -32,5 +32,9 @@ A web UI for interacting with MongoDB.
 
 * 0.1.0 Initial release
 
-* 0.1.1 Bug Fix
-	* JSON Tree root changed to 'root'
+* 0.1.3 Bug Fix and Feature Additions
+	* Added stable dependency requirements
+	* Can now delete multiple docs at once
+	* Added 'about' info and disclaimer
+	* Fixed refresh when adding new docs to collection
+	* 
