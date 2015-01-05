@@ -9,10 +9,13 @@ socket.on('collections', function(msg) {
 });
 
 socket.on('entries', function(msg) {
-  if(msg.action == 'display')
+  if(msg.action == 'display') {
     generateEntryTable(msg.results);
-  if(msg.action == 'export')
+    smoothScroll($('#table'));
+  }
+  if(msg.action == 'export') {
     exportSelection(msg.results);
+  }
 });
 
 socket.on('databases', function(msg) {
@@ -159,7 +162,7 @@ function generateDatabaseList(dbs) {
         socket.emit('switch_db', {dbName:id});
         $('.dbLogo').removeClass('active');
         $('#' + id).addClass('active');
-        $('#entryTableDiv').hide();
+        $('#table').hide();
       }
     });
   }
@@ -189,7 +192,7 @@ function generateCollectionList(collections) {
     // Build our list item
     listItem = '<li id="';
     listItem += collectionID;
-    listItem += '"><a href="#entryTableDiv">'; //scroll down to table
+    listItem += '"><a href="#table">'; //scroll down to table
     listItem += collections[i];
     listItem += '<i id="' + collectionID + '-del';
     listItem += '" class="list-item-delete glyphicon glyphicon-remove-circle"></i></a></li>';
@@ -199,6 +202,7 @@ function generateCollectionList(collections) {
 
     // Make it clickable
     $('#' + collectionID).click(function(event) {
+      //addSmoothScrolling($(this).find('a')[0]);
       onCollectionSelect(event);
     });
 
@@ -206,7 +210,7 @@ function generateCollectionList(collections) {
       event.stopPropagation();
       var collectionName = event.target.parentElement.parentElement.id;
       socket.emit('drop_collection', {name:collectionName});
-      $('#entryTableDiv').hide();
+      $('#table').hide();
     })
 
     // Add our collection as a dropdown option for export
@@ -217,7 +221,7 @@ function generateCollectionList(collections) {
   }
 
   var newListItem = '<li id="addNewCollection">';
-  newListItem += '<a href="#entryTableDiv">Add Collection ';
+  newListItem += '<a href="#">Add Collection ';
   newListItem += '<i class="glyphicon glyphicon-plus"></i>';
   newListItem += '</a></li>';
   $('#collections').append(newListItem);
@@ -227,7 +231,7 @@ function generateCollectionList(collections) {
 function addNewCollectionHandlers() {
   $('#addNewCollection').click(function(event) {
     var newCollectionListHTML = '<li id="addNewCollection">';
-    newCollectionListHTML += '<a href="#entryTableDiv">Add Collection ';
+    newCollectionListHTML += '<a href="#">Add Collection ';
     newCollectionListHTML += '<i class="glyphicon glyphicon-plus"></i>';
     newCollectionListHTML += '</a></li>';
 
@@ -280,7 +284,7 @@ function generateEntryTable(entries) {
 
   // Populate and show the table
   loadBootstrapTable(data);
-  $('#entryTableDiv').show();
+  $('#table').show();
 }
 
 function loadStatsTable(data) {
@@ -329,7 +333,7 @@ function loadBootstrapTable(data) {
     height: 500,
     striped: true,
     pagination: true,
-    pageSize: 5,
+    pageSize: 10,
     pageList: [10, 25, 50, 100, 200],
     search: true,
     showColumns: true,
@@ -537,11 +541,12 @@ function convertSize(bytes) {
 }
 
 
-
-
-
-
-
-
-
-
+// Smooth scrolling,
+function smoothScroll(target) {
+  if (target.length) {
+    $('html,body').animate({
+      scrollTop: target.offset().top
+    }, 1000);
+    return false;
+  }
+}
