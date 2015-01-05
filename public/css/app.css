@@ -183,3 +183,18 @@ body {
 .input-group button {
   margin-left: 5px;
 }
+
+.nav-item {
+  margin-left: 20px;
+  width: 130px;
+}
+
+.list-item-delete {
+  float: right;
+  display: none;
+}
+
+#collections li:hover .list-item-delete {
+  display:block;
+}
+

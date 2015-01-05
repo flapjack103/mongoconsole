@@ -23,7 +23,7 @@ socket.on('stats', function(msg) {
   generateStatsContent(msg);
 });
 
-socket.on('error', function(msg) {
+socket.on('err', function(msg) {
   $('#errorMessage').html(msg.err);
   $('#errorAlert').show().delay(3000).fadeOut("slow");
 
@@ -191,7 +191,8 @@ function generateCollectionList(collections) {
     listItem += collectionID;
     listItem += '"><a href="#entryTableDiv">'; //scroll down to table
     listItem += collections[i];
-    listItem += '</a></li>';
+    listItem += '<i id="' + collectionID + '-del';
+    listItem += '" class="list-item-delete glyphicon glyphicon-remove-circle"></i></a></li>';
 
     // Append it to the collection list on the side nav
     $('#collections').append(listItem);
@@ -201,12 +202,61 @@ function generateCollectionList(collections) {
       onCollectionSelect(event);
     });
 
+    $('#' + collectionID + '-del').click(function(event) {
+      event.stopPropagation();
+      var collectionName = event.target.parentElement.parentElement.id;
+      socket.emit('drop_collection', {name:collectionName});
+      $('#entryTableDiv').hide();
+    })
+
     // Add our collection as a dropdown option for export
     dropdownItem = '<option value="' + collections[i] + '"">';
     dropdownItem += collections[i];
     dropdownItem += '</option>';
     $('#exportCollectionDropdown').append(dropdownItem);
   }
+
+  var newListItem = '<li id="addNewCollection">';
+  newListItem += '<a href="#entryTableDiv">Add Collection ';
+  newListItem += '<i class="glyphicon glyphicon-plus"></i>';
+  newListItem += '</a></li>';
+  $('#collections').append(newListItem);
+  addNewCollectionHandlers();
+}
+
+function addNewCollectionHandlers() {
+  $('#addNewCollection').click(function(event) {
+    var newCollectionListHTML = '<li id="addNewCollection">';
+    newCollectionListHTML += '<a href="#entryTableDiv">Add Collection ';
+    newCollectionListHTML += '<i class="glyphicon glyphicon-plus"></i>';
+    newCollectionListHTML += '</a></li>';
+
+    this.remove();
+    var newCollectionInput = '<li id="newCollection"><input class="nav-item" type="text"></input></li>';
+    $('#collections').append(newCollectionInput);
+    $('#newCollection input').focus();
+
+    // Remove input if we focus out
+    $('#newCollection input').blur(function() {
+      this.remove();
+      $('#collections').append(newCollectionListHTML);
+      addNewCollectionHandlers();
+    });
+
+    // Trigger add on enter keypress
+    $('#newCollection input').keypress(function(event) {
+      if(event.which == 13) {
+        var name = $('#newCollection input').val();
+        if(name)
+          socket.emit('new_collection', {name:name});
+        else {
+          $('#newCollection').remove();
+          $('#collections').append(newCollectionListHTML);
+          addNewCollectionHandlers();
+        }
+      }
+    });
+  });
 }
 
 function generateEntryTable(entries) {
