@@ -32,3 +32,8 @@ A web UI for interacting with MongoDB.
 	* Can now delete multiple docs at once
 	* Added 'about' info and disclaimer
 	* Fixed refresh when adding new docs to collection
+
+* 0.1.4 Feature Additions
+  * Added error and success alerts
+  * Can now delete and add collections
+  * Support for multiple users (one db connection per user)
