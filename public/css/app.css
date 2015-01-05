@@ -175,9 +175,10 @@ body {
 
 .alert {
   display: none;
-  position: absolute;
+  position: fixed;
   margin-top: -15px;
   margin-left: 200px;
+  z-index: 1;
 }
 
 .input-group button {
