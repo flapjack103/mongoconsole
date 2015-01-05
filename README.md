@@ -23,11 +23,6 @@ A web UI for interacting with MongoDB.
   // Now go to http://localhost:<port> to interact with your mongodb instances
 ```
 
-## Tests
-```shell
-  npm test
-```
-
 ## Release History
 
 * 0.1.0 Initial release
