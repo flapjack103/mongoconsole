@@ -8,10 +8,10 @@ var express = require('express')
   , mongoDB = require('./lib/mongo')
   , io = require('socket.io')(http)
   , ObjectId = require('mongoose').Types.ObjectId
-  , mongo = null;
+  , mongoURI = null;
 
 function MongoConsole(port, uri) {
-  mongo = uri ? new mongoDB(uri) : new mongoDB(DEFAULT_URI);
+  mongoURI = uri ? uri : DEFAULT_URI;
   port = port || DEFAULT_PORT;
 
   // Start the web server
@@ -36,89 +36,175 @@ app.get('/settings', function(req, res) {
 
 io.on('connection', function(socket) {
 
+  // Start a new connection to mongoDB instance per mongoconsole connection
+  socket.mongo = new mongoDB(mongoURI);
+
   socket.on('disconnect', function() {
   });
   socket.on('add', function(msg) {
-    addEntry(msg);
+    addEntry(msg, socket);
   });
   socket.on('edit', function(msg) {
-    editEntry(msg);
+    editEntry(msg, socket);
   });
   socket.on('delete', function(msg) {
-    deleteEntry(msg);
+    deleteEntry(msg, socket);
   });
   socket.on('entries', function(msg) {
-    getEntries(msg);
+    getEntries(msg, socket);
   });
   socket.on('collections', function(msg) {
-    getCollections();
+    getCollections(socket);
   });
   socket.on('databases', function(msg) {
-    getDatabases(msg);
+    getDatabases(msg, socket);
   });
   socket.on('switch_db', function(msg) {
-    switchDB(msg);
+    switchDB(msg, socket);
   });
   socket.on('stats', function(msg) {
-    getStats();
+    getStats(socket);
   });
+  socket.on('new_collection', function(msg) {
+    addCollection(msg, socket);
+  });
+  socket.on('drop_collection', function(msg) {
+    deleteCollection(msg, socket);
+  })
   socket.on('settings', function(msg) {
-    getSettings();
+    getSettings(socket);
   });
   socket.on('error', function(err) {
     console.log("ERR: ", err);
+    socket.emit('err', {err:"Connection Error"});
   });
 });
 
 /* WebSocket Request Helper Functions */
-function addEntry(msg) {
-  mongo.add(msg.entry, msg.collection, function(err, result) {
+function addEntry(msg, socket) {
+  socket.mongo.add(msg.entry, msg.collection, function(err, result) {
     if(err) {
       console.log('MONGO ADD ERR: ', err);
-      io.emit('err', {err:"Add Error: " + err});
+      socket.emit('err', {err:"Add Error: " + err});
     }
     else {
-      io.emit('success', {ok:'Successfully added doc(s) to ' + msg.collection + ' collection.'});
-      getEntries({collection:msg.collection, action:'display'});
+      socket.emit('success', {ok:'Successfully added doc(s) to ' + msg.collection + ' collection.'});
+      getEntries({collection:msg.collection, action:'display'}, socket);
     }
   });
 }
 
-function editEntry(msg) {
-  mongo.update({_id: new ObjectId(msg.id)}, msg.json, msg.collection, function(err, result){
+function editEntry(msg, socket) {
+  socket.mongo.update({_id: new ObjectId(msg.id)}, msg.json, msg.collection, function(err, result){
     if(err) {
       console.log('MONGO UPDATE ERR: ', err);
-      io.emit('err', {err:"Update Error: " + err});
+      socket.emit('err', {err:"Update Error: " + err});
     }
   });
 }
 
-function deleteEntry(msg) {
-  mongo.remove({_id: new ObjectId(msg.id)}, msg.collection, function(err, result) {
+function deleteEntry(msg, socket) {
+  socket.mongo.remove({_id: new ObjectId(msg.id)}, msg.collection, function(err, result) {
     if(err) {
       console.log('MONGO DEL ERR: ', err);
-      io.emit('error', {err:"Delete Error: " + err});
+      socket.emit('err', {err:"Delete Error: " + err});
     }
     if(result === 0) {
-      io.emit('error', {err:"Error removing doc " + msg.id + " from " + msg.collection + " collection"});
+      socket.emit('err', {err:"Error removing doc " + msg.id + " from " + msg.collection + " collection"});
     }
   });
 }
 
-function getEntries(msg) {
-  mongo.findAll(msg.collection, function(err, results) {
+function getEntries(msg, socket) {
+  socket.mongo.findAll(msg.collection, function(err, results) {
     if(!err) {
-      io.emit('entries', {action:msg.action, results:results});
+      socket.emit('entries', {action:msg.action, results:results});
     }
     else {
       console.log('MONGO FIND ERR: ', err);
-      io.emit('error', {err:"Fetch Error: " + err});
+      socket.emit('err', {err:"Fetch Error: " + err});
     }
   });
 }
 
-function getCollections() {  
-  mongo.getCollectionNames(function(err, results) {
+function getCollections(socket) {  
+  socket.mongo.getCollectionNames(function(err, results) {
+    if(!err) {
+      var collections = [];
+      for(var i = 0; i < results.length; i++) {
+        collections[i] = results[i].name.split(/\.(.+)?/)[1];
+      }
+      socket.emit('collections', collections);
+    }
+    else {
+      console.log('MONGO GET COLLECTIONS ERR: ', err);
+    }
+  });
+}
+
+function getDatabases(msg, socket) {
+  socket.mongo.getDatabaseNames(function(err, results) {
+    if(!err) {
+      socket.emit('databases', results);
+    }
+    else {
+      console.log('MONGO GET DBs ERR: ', err);
+    }
+  });
+}
+
+function switchDB(msg, socket) {
+  socket.mongo.switchDB(msg.dbName, function(err) {
+    if(err){
+      console.log('ERR switching to DB ' + msg.dbName + ': ' + err);
+    }
+    else {
+      getCollections(socket);
+    }
+  });
+}
+
+function getStats(socket) {
+  socket.mongo.stats(function(err, result){
+    if(err) {
+      console.log('MONGO GET STATS ERR: ', err);
+    }
+    socket.emit('stats', result);
+  });
+}
+
+function addCollection(msg, socket) {
+  socket.mongo.createCollection(msg.name, function(err, result) {
+    if(err) {
+      socket.emit('err', {err:"Error creating collection: " + err});
+    }
+    else {
+      socket.emit('success', {ok:"Created " + msg.name + " collection"});
+      getCollections(socket);
+      broadcastCollectionUpdate(socket);
+    }
+  });
+}
+
+function deleteCollection(msg, socket) {
+  socket.mongo.deleteCollection(msg.name, function(err, result) {
+    if(err) {
+      socket.emit('err', {err:"Error removing collection: " + err});
+    }
+    else {
+      socket.emit('success', {ok:"Dropped " + msg.name + " collection"});
+      getCollections(socket);
+      broadcastCollectionUpdate(socket);
+    }
+  });
+}
+
+function getSettings(socket) {
+  //TODO
+}
+
+function broadcastCollectionUpdate(socket) {
+  socket.mongo.getCollectionNames(function(err, results) {
     if(!err) {
       var collections = [];
       for(var i = 0; i < results.length; i++) {
@@ -130,41 +216,6 @@ function getCollections() {
       console.log('MONGO GET COLLECTIONS ERR: ', err);
     }
   });
-}
-
-function getDatabases(msg) {
-  mongo.getDatabaseNames(function(err, results) {
-    if(!err) {
-      io.emit('databases', results);
-    }
-    else {
-      console.log('MONGO GET DBs ERR: ', err);
-    }
-  });
-}
-
-function switchDB(msg) {
-  mongo.switchDB(msg.dbName, function(err) {
-    if(err){
-      console.log('ERR switching to DB ' + msg.dbName + ': ' + err);
-    }
-    else {
-      getCollections();
-    }
-  });
-}
-
-function getStats() {
-  mongo.stats(function(err, result){
-    if(err) {
-      console.log('MONGO GET STATS ERR: ', err);
-    }
-    io.emit('stats', result);
-  });
-}
-
-function getSettings() {
-  //TODO
 }
 
 module.exports = MongoConsole;
