@@ -209,6 +209,7 @@ function generateCollectionList(collections) {
     $('#' + collectionID + '-del').click(function(event) {
       event.stopPropagation();
       var collectionName = event.target.parentElement.parentElement.id;
+      collectionName = collectionName.replace(/\-/g, '.');
       socket.emit('drop_collection', {name:collectionName});
       $('#table').hide();
     })
@@ -251,8 +252,15 @@ function addNewCollectionHandlers() {
     $('#newCollection input').keypress(function(event) {
       if(event.which == 13) {
         var name = $('#newCollection input').val();
-        if(name)
-          socket.emit('new_collection', {name:name});
+        if(name) {
+          if(name.indexOf(' ') > 0) {
+              $('#errorMessage').html("Collection name cannot contain spaces.");
+              $('#errorAlert').show().delay(3000).fadeOut("slow");
+          }
+          else {
+            socket.emit('new_collection', {name:name});
+          }
+        }
         else {
           $('#newCollection').remove();
           $('#collections').append(newCollectionListHTML);
