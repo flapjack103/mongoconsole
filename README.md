@@ -35,5 +35,5 @@ A web UI for interacting with MongoDB.
 
 * 0.1.4 Feature Additions
   * Added error and success alerts
-  * Can now delete and add collections
+  * Delete and Add for collections
   * Support for multiple users (one db connection per user)

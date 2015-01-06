@@ -103,13 +103,27 @@ function uploadFile() {
     reader.onload = function (evt) {
       var fileJSON = evt.target.result;
       try {
+        // First try parsing the whole file as an array of JSON objects
         var entries = JSON.parse(fileJSON);
-        for(var i = 0; i < entries.length; i++) {
+        var len = entries.length;
+        for(var i = 0; i < len; i++) {
           socket.emit('add', {collection: currCollection, entry:entries[i]});
         }
       }
       catch(e) {
-        alert('Not a valid JSON file');
+        try {
+          // try parsing each individual line as a JSON object
+          var entries = fileJSON.split('\n');
+          var len = entries.length;
+          for(var i = 0; i < len; i++) {
+            var doc = JSON.parse(entries[i]);
+            console.log('adding: ', doc);
+            socket.emit('add', {collection: currCollection, entry:doc});
+          }
+        }
+        catch(e) {
+          alert('Not a valid JSON file');
+        }
       }
     }
     reader.onerror = function (evt) {
