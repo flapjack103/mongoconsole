@@ -186,8 +186,13 @@ body {
 }
 
 .nav-item {
+  margin-top:12px;
   margin-left: 20px;
   width: 130px;
+}
+
+.list-item-add {
+  float: right;
 }
 
 .list-item-delete {
