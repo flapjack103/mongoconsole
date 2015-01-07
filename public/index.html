@@ -48,11 +48,12 @@
       <div class="col-sm-3 col-md-2 sidebar">
         <ul class="nav nav-sidebar">
           <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
-          <li id="analytics" data-toggle="modal" data-target="#statsModal"><a href="#">Stats</a></li>
+          <li id="stats" data-toggle="modal" data-target="#statsModal"><a href="#">Stats</a></li>
           <li id="export" data-toggle="modal" data-target="#exportModal"><a href="#">Export</a></li>
         </ul>
         <ul id="collections" class="nav nav-sidebar">
           <li class="active"><a href="">Collections</a></li>
+          <li id="addNewCollection"><a href="#">Add Collection<i class="list-item-add glyphicon glyphicon-plus"></i></a></li>
         </ul>
       </div>
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
@@ -67,13 +68,15 @@
           <strong>Success!</strong> <span id="successMessage"></span>
         </div>
 
+        <div id="infoAlert" class="alert alert-info" role="alert"></div>
+
         <h1 class="page-header">Dashboard</h1>
 
         <div id="dbList" class="row placeholders">     
         </div>
         <div id="table">
           <h2 id="collectionTitle" class="sub-header">Section title</h2>
-          <table id="table-javascript"></table>
+          <table id="collection-table"></table>
         </div>
         <div id="tree-container"></div>
       </div> 
@@ -136,7 +139,7 @@
         </div>
         <div id="statsContent" class="modal-body">
           <p>Database Statistics</p>
-          <table id="stats-table-javascript"></table>
+          <table id="stats-table"></table>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -265,16 +268,23 @@
 </div>
 
 
-    <!-- Bootstrap core JavaScript
+    <!-- Libraries
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
     <script src="lib/jquery-1.10.2.min.js"></script>
     <script src="lib/bootstrap.min.js"></script>
     <script src="lib/docs.min.js"></script>
     <script src="lib/bootstrap-table.js"></script>    
     <script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
     <script src="lib/d3.min.js"></script>
+
+    <!-- Application Code
+    ================================================== -->
+    <script src="js/globals.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/tables.js"></script>
+    <script src="js/fileImportExport.js"></script>
     <script src="js/buildJSONTree.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/mongoConsole.js"></script>
+    <script src="js/main.js"></script>
   </body>
   </html>
