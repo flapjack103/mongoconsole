@@ -42,7 +42,10 @@ io.on('connection', function(socket) {
   socket.on('disconnect', function() {
   });
   socket.on('add', function(msg) {
-    addEntry(msg, socket);
+    if(msg.multi === true)
+      addBulk(msg, socket);
+    else
+      addEntry(msg, socket);
   });
   socket.on('edit', function(msg) {
     editEntry(msg, socket);
@@ -88,9 +91,34 @@ function addEntry(msg, socket) {
       socket.emit('err', {err:"Add Error: " + err});
     }
     else {
-      socket.emit('success', {ok:'Successfully added doc(s) to ' + msg.collection + ' collection.'});
+      socket.emit('success', {ok:'Successfully added doc to ' + msg.collection + ' collection.'});
       getEntries({collection:msg.collection, action:'display'}, socket);
     }
+  });
+}
+
+function addBulk(msg, socket) {
+  var entries = msg.entries;
+  var numAdded = 0;
+  var numProcessed = 0;
+  var numEntries = entries.length;
+
+  // Add each entry
+  entries.forEach(function(doc) {
+    socket.mongo.add(doc, msg.collection, function(err, result) {
+      numProcessed++;
+      if(err) {
+        console.log('MONGO ADD ERR: ', err);
+      } 
+      else {
+        numAdded++;
+      }
+      // if this is the last entry, send back a success
+      if(numProcessed == numEntries) {
+        socket.emit('success', {ok:'Added ' + numAdded + ' of ' + numProcessed + ' docs to ' + msg.collection + ' collection.'});
+        getEntries({collection:msg.collection, action:'display'}, socket);
+      }
+    });
   });
 }
 
