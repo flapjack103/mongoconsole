@@ -8,7 +8,9 @@ socket.on('collections', function(msg) {
 
 socket.on('entries', function(msg) {
   if(msg.action == 'display') {
-    populateCollectionTable(msg.results);
+    if(currCollection == msg.collection) {
+      populateCollectionTable(msg.results);
+    }
   }
   if(msg.action == 'export') {
     exportSelectionToFile(msg.results);
@@ -24,18 +26,15 @@ socket.on('stats', function(msg) {
 });
 
 socket.on('err', function(msg) {
-  $('#errorMessage').html(msg.err);
-  $('#errorAlert').show().delay(3000).fadeOut("slow");
-
+  errorAlert(msg.err);
 });
 
 socket.on('success', function(msg) {
   if($('#infoAlert').is(":visible")) {
-    $('#infoAlert').html(msg.ok + " Loading table. Please wait...");
+    showInfoAlert(msg.ok + " Loading table. Please wait...");
   }
   else {
-    $('#successMessage').html(msg.ok);
-    $('#successAlert').show().delay(3000).fadeOut("slow");
+    successAlert(msg.ok);
   }
 });
 

@@ -31,7 +31,7 @@ function loadStatsTable(data) {
 
 // This is the table for displaying MongoDB collection entries
 function loadCollectionTable(data) {
-  console.log('loading collection table');
+
   // If the table has already been loaded once, simply reload the new data
   if(tableExists(collectionTableID)) {
     $('#' + collectionTableID).bootstrapTable('load', data);

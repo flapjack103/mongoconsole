@@ -16,8 +16,7 @@ function makeCollectionActive(name) {
   $('#table').hide();
 
   // Show loading message
-  $('#infoAlert').html('Loading table. Please wait...');
-  $('#infoAlert').show();
+  showInfoAlert('Loading table. Please wait...');
 
   collectionName = name.replace(/\-/g, '.');
   socket.emit('entries', {action:'display', collection:collectionName});
@@ -27,13 +26,12 @@ function makeCollectionActive(name) {
 }
 
 function createNewCollection(name) {
- if(name) {
-    if(name.indexOf(' ') > 0) {
-      $('#errorMessage').html("Collection name cannot contain spaces.");
-      $('#errorAlert').show().delay(3000).fadeOut("slow");
+  if(name) {
+    if(validCollectionName(name) === true) {
+      socket.emit('new_collection', {name:name});
     }
     else {
-      socket.emit('new_collection', {name:name});
+      errorAlert('Collection name cannot contain spaces or special characters.');
     }
   }
   else {
@@ -105,7 +103,7 @@ function populateCollectionTable(entries) {
 
   // Populate and show the table
   loadCollectionTable(data);
-  $('#infoAlert').hide();
+  hideInfoAlert();
   $('#table').show();
   smoothScroll($('#table'));
 }
@@ -177,6 +175,38 @@ function generateCollectionList(collections) {
     addCollectionToDropdown(collection, 'exportCollectionDropdown');
   }
 }
+
+// Valid user input for collection name
+function validCollectionName(name) {
+  var checkName = /^[A-Za-z0-9_]{3,20}$/;
+  if(!checkName.test(name)) {
+    return false;
+  }
+  return true;
+}
+
+/*** Alert Types ***/
+function errorAlert(msg) {
+  $('#errorMessage').html(msg);
+  $('#errorAlert').show().delay(3000).fadeOut("slow");
+}
+
+function successAlert(msg) {
+  $('#successMessage').html(msg);
+  $('#successAlert').show().delay(3000).fadeOut("slow");
+}
+
+function showInfoAlert(msg) {
+  var msgHTML= '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>';
+  msgHTML += msg;
+  $('#infoAlert').html(msgHTML);
+  $('#infoAlert').show();
+}
+
+function hideInfoAlert() {
+  $('#infoAlert').hide();
+}
+
 
 /***** Event Handlers *****/
 var addDocsToCollection = function() {

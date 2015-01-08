@@ -2,8 +2,7 @@ function uploadFile() {
   var file = document.getElementById("fileSelection").files[0];
   if (file) {
     // User feedback
-    $('#infoAlert').html('Adding docs to collection. Please wait...');
-    $('#infoAlert').show();
+    showInfoAlert('Adding docs to collection. Please wait...')
 
     // Read the file
     var reader = new FileReader();
@@ -23,9 +22,8 @@ var importFileContents = function(event) {
   }
   catch(e) {
     // User error feedback
-    $('#infoAlert').hide();
-    $('#errorMessage').html('Invalid JSON detected. Please check your file and try again.');
-    $('#errorAlert').show().delay(3000).fadeOut("slow");
+    hideInfoAlert();
+    errorAlert('Invalid JSON detected. Please check your file and try again.');
   }
 }
 
