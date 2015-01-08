@@ -10,7 +10,7 @@ var express = require('express')
   , ObjectId = require('mongoose').Types.ObjectId
   , mongoURI = null;
 
-function MongoConsole(port, uri) {
+function MongoConsole(uri, port) {
   mongoURI = uri ? uri : DEFAULT_URI;
   port = port || DEFAULT_PORT;
 
