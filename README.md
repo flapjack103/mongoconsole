@@ -37,3 +37,8 @@ A web UI for interacting with MongoDB.
   * Added error and success alerts
   * Delete and Add for collections
   * Support for multiple users (one db connection per user)
+
+* 0.1.5 Feature Additions and Fixes
+  * Improved performance for larger datasets
+  * Collection name input validation
+  * Known bug: Export for very large collections crashes browser
