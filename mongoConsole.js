@@ -146,7 +146,7 @@ function deleteEntry(msg, socket) {
 function getEntries(msg, socket) {
   socket.mongo.findAll(msg.collection, function(err, results) {
     if(!err) {
-      socket.emit('entries', {action:msg.action, results:results});
+      socket.emit('entries', {action:msg.action, collection:msg.collection, results:results});
     }
     else {
       console.log('MONGO FIND ERR: ', err);
